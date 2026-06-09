@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Discord User Activity Notifier",
+  "version": "0.1.0",
+  "description": "Local browser notifications for configured Discord Web users.",
+  "permissions": ["storage", "notifications"],
+  "host_permissions": ["https://discord.com/channels/*"],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://discord.com/channels/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    }
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icon.svg",
+    "48": "icon.svg",
+    "128": "icon.svg"
+  }
+}

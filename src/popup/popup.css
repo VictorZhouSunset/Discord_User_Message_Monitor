@@ -1,0 +1,145 @@
+:root {
+  color-scheme: light;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --surface-strong: #eef1f8;
+  --text: #172033;
+  --muted: #667089;
+  --border: #d9deea;
+  --accent: #5865f2;
+  --accent-strong: #4552d7;
+  --warning: #8b5c00;
+  --success: #127a55;
+  --radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 360px;
+  margin: 0;
+  background: var(--bg);
+}
+
+button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 0 12px;
+}
+
+button:hover {
+  border-color: #b8c0d5;
+}
+
+.popup-shell {
+  padding: 16px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+h1 {
+  margin: 0 0 3px;
+  font-size: 18px;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.status-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: var(--radius);
+}
+
+.status-icon.active {
+  background: #e6f5ef;
+  color: var(--success);
+}
+
+.status-icon.paused {
+  background: #fff1d4;
+  color: var(--warning);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.metric-grid div {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 10px;
+}
+
+.metric-grid strong {
+  display: block;
+  font-size: 20px;
+}
+
+.metric-grid span,
+.popup-detail span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.popup-detail {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 10px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.primary-button {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+}
+
+.primary-button:hover {
+  background: var(--accent-strong);
+}
+
+.popup-message {
+  margin-top: 12px;
+}
