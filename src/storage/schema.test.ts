@@ -30,6 +30,7 @@ describe('settings schema', () => {
           matchMode: 'username',
           showMessagePreview: true,
           playSound: false,
+          notificationSound: 'double-chime',
         },
         {
           enabled: true,
@@ -41,23 +42,24 @@ describe('settings schema', () => {
     expect(result).toEqual({
       changed: true,
       settings: {
-      schemaVersion: SETTINGS_SCHEMA_VERSION,
-      monitoringEnabled: false,
-      trackedUsers: [
-        {
-          id: 'tracked-1',
-          enabled: true,
-          isDefault: true,
-          username: 'Alice',
-          discordUserId: undefined,
-          displayName: undefined,
-          matchMode: 'username',
-          serverId: undefined,
-          channelId: undefined,
-          showMessagePreview: true,
-          playSound: false,
-        },
-      ],
+        schemaVersion: SETTINGS_SCHEMA_VERSION,
+        monitoringEnabled: false,
+        trackedUsers: [
+          {
+            id: 'tracked-1',
+            enabled: true,
+            isDefault: true,
+            username: 'Alice',
+            discordUserId: undefined,
+            displayName: undefined,
+            matchMode: 'username',
+            serverId: undefined,
+            channelId: undefined,
+            showMessagePreview: true,
+            playSound: false,
+            notificationSound: 'double-chime',
+          },
+        ],
       },
     });
   });
@@ -71,5 +73,25 @@ describe('settings schema', () => {
 
     expect(result.changed).toBe(true);
     expect(result.settings.trackedUsers[0]?.isDefault).toBe(true);
+  });
+
+  it('falls back to the default local sound for invalid sound values', () => {
+    const result = validateAndMigrateSettings({
+      schemaVersion: 1,
+      monitoringEnabled: true,
+      trackedUsers: [
+        {
+          id: 'tracked-1',
+          enabled: true,
+          isDefault: true,
+          username: 'Alice',
+          matchMode: 'username',
+          notificationSound: 'unknown-sound',
+        },
+      ],
+    });
+
+    expect(result.settings.trackedUsers[0]?.notificationSound).toBe('soft-ping');
+    expect(result.changed).toBe(true);
   });
 });

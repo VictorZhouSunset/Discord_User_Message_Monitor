@@ -51,6 +51,7 @@ const settings: StoredSettings = {
       matchMode: 'username',
       showMessagePreview: false,
       playSound: true,
+      notificationSound: 'soft-ping',
     },
     {
       id: 'temporary-enabled',
@@ -60,6 +61,7 @@ const settings: StoredSettings = {
       matchMode: 'username',
       showMessagePreview: false,
       playSound: true,
+      notificationSound: 'soft-ping',
     },
     {
       id: 'saved-disabled',
@@ -69,6 +71,7 @@ const settings: StoredSettings = {
       matchMode: 'username',
       showMessagePreview: false,
       playSound: true,
+      notificationSound: 'soft-ping',
     },
   ],
 };

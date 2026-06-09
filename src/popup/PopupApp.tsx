@@ -7,6 +7,7 @@ import type {
   SetMonitoringEnabledRuntimeMessage,
   TestNotificationRuntimeMessage,
 } from '../shared/types';
+import { getStatusDisplay } from './status-display';
 
 function sendRuntimeMessage<TResponse>(message: RuntimeMessage): Promise<TResponse> {
   return new Promise((resolve) => {
@@ -49,16 +50,19 @@ export function PopupApp() {
   }
 
   const monitoringEnabled = status?.monitoringEnabled ?? false;
+  const statusDisplay = status
+    ? getStatusDisplay(status)
+    : ({ text: 'Loading status', iconClass: 'status-icon paused' } as const);
 
   return (
     <main className="popup-shell">
       <header>
-        <div className={monitoringEnabled ? 'status-icon active' : 'status-icon paused'}>
+        <div className={statusDisplay.iconClass}>
           <Bell size={20} />
         </div>
         <div>
           <h1>Discord Notifier</h1>
-          <p>{monitoringEnabled ? 'Monitoring active' : 'Monitoring paused'}</p>
+          <p>{statusDisplay.text}</p>
         </div>
       </header>
 

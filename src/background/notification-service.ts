@@ -1,5 +1,6 @@
 import { MESSAGE_PREVIEW_MAX_LENGTH } from '../shared/constants';
-import type { ObservedDiscordMessage, TrackedUser } from '../shared/types';
+import type { NotificationSoundId, ObservedDiscordMessage, TrackedUser } from '../shared/types';
+import { playNotificationSound } from './audio-service';
 
 function notificationsApi(): typeof chrome.notifications | undefined {
   return globalThis.chrome?.notifications;
@@ -45,15 +46,19 @@ export async function createDiscordNotification(
     iconUrl: 'icon.svg',
     title: 'Discord message alert',
     message: createNotificationMessage(trackedUser, message),
-    silent: !trackedUser.playSound,
+    silent: !trackedUser.playSound || trackedUser.notificationSound !== 'system',
   };
 
   await new Promise<void>((resolve) => {
     notifications.create(notificationId, options, () => resolve());
   });
+
+  if (trackedUser.playSound) {
+    await playNotificationSound(trackedUser.notificationSound);
+  }
 }
 
-export async function createTestNotification(): Promise<void> {
+export async function createTestNotification(sound: NotificationSoundId): Promise<void> {
   const notifications = notificationsApi();
   if (!notifications) {
     return;
@@ -66,10 +71,12 @@ export async function createTestNotification(): Promise<void> {
         type: 'basic',
         iconUrl: 'icon.svg',
         title: 'Discord message alert',
-        message: 'Notifications are available. System sound is controlled by your browser and OS settings.',
-        silent: false,
+        message: 'Notifications are available. The selected alert sound should play now.',
+        silent: sound !== 'system',
       },
       () => resolve(),
     );
   });
+
+  await playNotificationSound(sound);
 }

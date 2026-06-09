@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         options: resolve(projectRoot, 'options.html'),
         popup: resolve(projectRoot, 'popup.html'),
+        offscreen: resolve(projectRoot, 'offscreen.html'),
       },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',

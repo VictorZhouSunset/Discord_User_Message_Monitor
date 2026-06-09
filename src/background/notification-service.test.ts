@@ -10,6 +10,7 @@ const user: TrackedUser = {
   matchMode: 'username',
   showMessagePreview: true,
   playSound: true,
+  notificationSound: 'soft-ping',
 };
 
 const message: ObservedDiscordMessage = {

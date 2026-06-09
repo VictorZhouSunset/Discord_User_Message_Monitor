@@ -1,8 +1,15 @@
 import { checkAndMarkMessageSeen } from './duplicate-cache';
+import { determineDiscordStatus } from './discord-status-service';
 import { createDiscordNotification, createTestNotification } from './notification-service';
 import { ensureStartupDeactivation } from './startup-deactivation';
 import { matchTrackedUser } from '../matching/match-message';
-import type { PopupStatus, RuntimeMessage } from '../shared/types';
+import { DISCORD_CHANNELS_MATCH_PATTERN } from '../shared/constants';
+import type {
+  CheckDiscordStructureResponse,
+  CheckDiscordStructureRuntimeMessage,
+  PopupStatus,
+  RuntimeMessage,
+} from '../shared/types';
 import { loadSettings, updateSettings } from '../storage/settings-repository';
 
 async function handleObservedMessage(message: RuntimeMessage & { type: 'discord-message-observed' }): Promise<void> {
@@ -35,6 +42,44 @@ async function getNotificationPermission(): Promise<PopupStatus['notificationPer
   });
 }
 
+async function queryDiscordTabs(): Promise<chrome.tabs.Tab[]> {
+  if (!globalThis.chrome?.tabs?.query) {
+    return [];
+  }
+
+  return new Promise((resolve) => {
+    chrome.tabs.query({ url: DISCORD_CHANNELS_MATCH_PATTERN }, (tabs) => {
+      resolve(tabs);
+    });
+  });
+}
+
+function sendStructureCheck(
+  tabId: number,
+  message: CheckDiscordStructureRuntimeMessage,
+): Promise<CheckDiscordStructureResponse> {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.sendMessage(tabId, message, (response?: CheckDiscordStructureResponse) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+        return;
+      }
+
+      if (!response) {
+        reject(new Error('No content script response'));
+        return;
+      }
+
+      resolve(response);
+    });
+  });
+}
+
+async function getDiscordStatus(): Promise<PopupStatus['discordStatus']> {
+  const tabs = await queryDiscordTabs();
+  return determineDiscordStatus(tabs, sendStructureCheck);
+}
+
 async function getPopupStatus(): Promise<PopupStatus> {
   const settings = await loadSettings();
   const enabledTrackedUsers = settings.trackedUsers.filter((user) => user.enabled).length;
@@ -50,6 +95,7 @@ async function getPopupStatus(): Promise<PopupStatus> {
     temporarilyEnabledUsers,
     disabledTrackedUsers: settings.trackedUsers.length - enabledTrackedUsers,
     notificationPermission: await getNotificationPermission(),
+    discordStatus: await getDiscordStatus(),
   };
 }
 
@@ -87,7 +133,7 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
 
   if (message.type === 'test-notification') {
     void ensureStartupDeactivation()
-      .then(createTestNotification)
+      .then(() => createTestNotification(message.sound ?? 'soft-ping'))
       .then(() => sendResponse({ ok: true }));
     return true;
   }

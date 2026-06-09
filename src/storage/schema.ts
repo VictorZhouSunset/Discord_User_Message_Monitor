@@ -1,7 +1,10 @@
-import { DEFAULT_SETTINGS, SETTINGS_SCHEMA_VERSION } from '../shared/constants';
-import type { MatchMode, StoredSettings, TrackedUser } from '../shared/types';
+import { DEFAULT_NOTIFICATION_SOUND, DEFAULT_SETTINGS, NOTIFICATION_SOUNDS, SETTINGS_SCHEMA_VERSION } from '../shared/constants';
+import type { MatchMode, NotificationSoundId, StoredSettings, TrackedUser } from '../shared/types';
 
 const MATCH_MODES = new Set<MatchMode>(['user-id', 'username', 'display-name']);
+const NOTIFICATION_SOUND_IDS = new Set<NotificationSoundId>(
+  NOTIFICATION_SOUNDS.map((sound) => sound.id),
+);
 
 export type SettingsValidationResult = {
   settings: StoredSettings;
@@ -54,6 +57,18 @@ function parseMatchMode(record: Record<string, unknown>): {
   return { value: 'username', changed: true };
 }
 
+function parseNotificationSound(record: Record<string, unknown>): {
+  value: NotificationSoundId;
+  changed: boolean;
+} {
+  const rawValue = record.notificationSound;
+  if (typeof rawValue === 'string' && NOTIFICATION_SOUND_IDS.has(rawValue as NotificationSoundId)) {
+    return { value: rawValue as NotificationSoundId, changed: false };
+  }
+
+  return { value: DEFAULT_NOTIFICATION_SOUND, changed: true };
+}
+
 function parseTrackedUser(value: unknown): {
   user?: TrackedUser;
   changed: boolean;
@@ -77,6 +92,7 @@ function parseTrackedUser(value: unknown): {
   const channelId = optionalString(value, 'channelId');
   const showMessagePreview = requiredBoolean(value, 'showMessagePreview', false);
   const playSound = requiredBoolean(value, 'playSound', true);
+  const notificationSound = parseNotificationSound(value);
   const changed = [
     id,
     enabled,
@@ -89,6 +105,7 @@ function parseTrackedUser(value: unknown): {
     channelId,
     showMessagePreview,
     playSound,
+    notificationSound,
   ].some((parsed) => parsed.changed);
 
   return {
@@ -104,6 +121,7 @@ function parseTrackedUser(value: unknown): {
       channelId: channelId.value,
       showMessagePreview: showMessagePreview.value,
       playSound: playSound.value,
+      notificationSound: notificationSound.value,
     },
     changed,
   };

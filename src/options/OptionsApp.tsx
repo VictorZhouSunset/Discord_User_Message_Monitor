@@ -1,6 +1,7 @@
 import { Bell, BellOff, Pencil, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import type { MatchMode, StoredSettings, TrackedUser } from '../shared/types';
+import { NOTIFICATION_SOUNDS } from '../shared/constants';
+import type { MatchMode, NotificationSoundId, StoredSettings, TestNotificationRuntimeMessage, TrackedUser } from '../shared/types';
 import { createDefaultSettings } from '../storage/schema';
 import { loadSettings, resetSettings, saveSettings } from '../storage/settings-repository';
 
@@ -15,6 +16,7 @@ type TrackedUserForm = {
   isDefault: boolean;
   showMessagePreview: boolean;
   playSound: boolean;
+  notificationSound: NotificationSoundId;
 };
 
 const emptyForm: TrackedUserForm = {
@@ -28,6 +30,7 @@ const emptyForm: TrackedUserForm = {
   isDefault: true,
   showMessagePreview: false,
   playSound: true,
+  notificationSound: 'soft-ping',
 };
 
 function toForm(user: TrackedUser): TrackedUserForm {
@@ -42,6 +45,7 @@ function toForm(user: TrackedUser): TrackedUserForm {
     isDefault: user.isDefault,
     showMessagePreview: user.showMessagePreview,
     playSound: user.playSound,
+    notificationSound: user.notificationSound,
   };
 }
 
@@ -63,11 +67,17 @@ function createTrackedUser(form: TrackedUserForm, id: string = crypto.randomUUID
     channelId: optionalText(form.channelId),
     showMessagePreview: form.showMessagePreview,
     playSound: form.playSound,
+    notificationSound: form.notificationSound,
   };
 }
 
 function userLabel(user: TrackedUser): string {
-  return user.discordUserId ?? user.username ?? user.displayName ?? 'Unnamed user';
+  const name = user.displayName ?? user.username;
+  if (name && user.discordUserId) {
+    return `${name} (${user.discordUserId})`;
+  }
+
+  return name ?? user.discordUserId ?? 'Unnamed user';
 }
 
 function MatchWarning({ matchMode }: { matchMode: MatchMode }) {
@@ -172,6 +182,19 @@ export function OptionsApp() {
     setForm(emptyForm);
     setEditingId(undefined);
     setStatus('Local settings cleared');
+  }
+
+  async function previewSound(): Promise<void> {
+    await new Promise<void>((resolve) => {
+      chrome.runtime.sendMessage(
+        {
+          type: 'test-notification',
+          sound: form.notificationSound,
+        } satisfies TestNotificationRuntimeMessage,
+        () => resolve(),
+      );
+    });
+    setStatus('Test notification sent');
   }
 
   return (
@@ -290,8 +313,33 @@ export function OptionsApp() {
                   checked={form.playSound}
                   onChange={(event) => setForm((current) => ({ ...current, playSound: event.target.checked }))}
                 />
-                Use system notification sound
+                Play notification sound
               </label>
+            </div>
+
+            <div className="field-row compact">
+              <label>
+                Alert sound
+                <select
+                  value={form.notificationSound}
+                  disabled={!form.playSound}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      notificationSound: event.target.value as NotificationSoundId,
+                    }))
+                  }
+                >
+                  {NOTIFICATION_SOUNDS.map((sound) => (
+                    <option key={sound.id} value={sound.id}>
+                      {sound.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button type="button" disabled={!form.playSound} onClick={() => void previewSound()}>
+                Preview sound
+              </button>
             </div>
 
             <div className="button-row">
@@ -346,6 +394,9 @@ export function OptionsApp() {
                       </span>
                       <span className={user.showMessagePreview ? 'pill amber' : 'pill muted'}>
                         {user.showMessagePreview ? 'Preview on' : 'Preview off'}
+                      </span>
+                      <span className={user.playSound ? 'pill purple' : 'pill muted'}>
+                        {user.playSound ? NOTIFICATION_SOUNDS.find((sound) => sound.id === user.notificationSound)?.label : 'Sound off'}
                       </span>
                     </div>
                   </div>

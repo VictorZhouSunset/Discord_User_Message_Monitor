@@ -12,6 +12,7 @@ All tracking settings are stored locally in `chrome.storage.local`. Recently not
 
 - `storage`: persists local settings and session duplicate-prevention state.
 - `notifications`: creates Chromium desktop notifications.
+- `offscreen`: hosts a local offscreen document for user-selected Web Audio alert sounds.
 - `https://discord.com/channels/*`: runs the isolated content script on Discord Web channel pages only.
 
 The extension intentionally does not request `cookies`, `webRequest`, `debugger`, or `<all_urls>`.

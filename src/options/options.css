@@ -196,6 +196,14 @@ input[type='checkbox'] {
   flex: 1;
 }
 
+.field-row.compact {
+  align-items: end;
+}
+
+.field-row.compact button {
+  min-width: 128px;
+}
+
 .checkbox-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -282,6 +290,11 @@ input[type='checkbox'] {
 .pill.amber {
   background: #fff1d4;
   color: var(--warning);
+}
+
+.pill.purple {
+  background: #f0eaff;
+  color: #6844b8;
 }
 
 .pill.muted {

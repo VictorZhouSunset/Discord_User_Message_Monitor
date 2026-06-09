@@ -1,4 +1,10 @@
 export type MatchMode = 'user-id' | 'username' | 'display-name';
+export type NotificationSoundId =
+  | 'system'
+  | 'soft-ping'
+  | 'double-chime'
+  | 'bright-pop'
+  | 'urgent-pulse';
 
 export type TrackedUser = {
   id: string;
@@ -12,6 +18,7 @@ export type TrackedUser = {
   channelId?: string;
   showMessagePreview: boolean;
   playSound: boolean;
+  notificationSound: NotificationSoundId;
 };
 
 export type StoredSettings = {
@@ -40,6 +47,7 @@ export type PopupStatus = {
   temporarilyEnabledUsers: number;
   disabledTrackedUsers: number;
   notificationPermission: 'granted' | 'denied' | 'unknown';
+  discordStatus: 'not-detected' | 'structure-unrecognized' | 'active';
 };
 
 export type DiscordMessageObservedRuntimeMessage = {
@@ -58,10 +66,26 @@ export type SetMonitoringEnabledRuntimeMessage = {
 
 export type TestNotificationRuntimeMessage = {
   type: 'test-notification';
+  sound?: NotificationSoundId;
+};
+
+export type PlayNotificationSoundRuntimeMessage = {
+  type: 'play-notification-sound';
+  sound: NotificationSoundId;
+};
+
+export type CheckDiscordStructureRuntimeMessage = {
+  type: 'check-discord-structure';
+};
+
+export type CheckDiscordStructureResponse = {
+  ok: boolean;
 };
 
 export type RuntimeMessage =
   | DiscordMessageObservedRuntimeMessage
   | GetPopupStatusRuntimeMessage
   | SetMonitoringEnabledRuntimeMessage
-  | TestNotificationRuntimeMessage;
+  | TestNotificationRuntimeMessage
+  | PlayNotificationSoundRuntimeMessage
+  | CheckDiscordStructureRuntimeMessage;

@@ -1,4 +1,8 @@
-import type { DiscordMessageObservedRuntimeMessage } from '../shared/types';
+import type {
+  CheckDiscordStructureResponse,
+  DiscordMessageObservedRuntimeMessage,
+  RuntimeMessage,
+} from '../shared/types';
 import { findChatContainer, findMessageElements } from './discord-dom-adapter';
 import { parseDiscordMessageNode } from './message-parser';
 
@@ -72,6 +76,14 @@ function watchRouteChanges(): void {
     }
   }, 750);
 }
+
+chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
+  if (message.type === 'check-discord-structure') {
+    sendResponse({ ok: Boolean(findChatContainer()) } satisfies CheckDiscordStructureResponse);
+  }
+
+  return false;
+});
 
 connectObserver();
 watchRouteChanges();

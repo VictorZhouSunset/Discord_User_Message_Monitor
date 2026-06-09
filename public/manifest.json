@@ -3,7 +3,7 @@
   "name": "Discord User Activity Notifier",
   "version": "0.1.0",
   "description": "Local browser notifications for configured Discord Web users.",
-  "permissions": ["storage", "notifications"],
+  "permissions": ["storage", "notifications", "offscreen"],
   "host_permissions": ["https://discord.com/channels/*"],
   "background": {
     "service_worker": "service-worker.js",

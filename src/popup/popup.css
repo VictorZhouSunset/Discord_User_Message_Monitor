@@ -12,6 +12,7 @@
   --accent-strong: #4552d7;
   --warning: #8b5c00;
   --success: #127a55;
+  --danger: #c7364b;
   --radius: 8px;
   background: var(--bg);
   color: var(--text);
@@ -86,6 +87,11 @@ p {
 .status-icon.paused {
   background: #fff1d4;
   color: var(--warning);
+}
+
+.status-icon.danger {
+  background: #fdebee;
+  color: var(--danger);
 }
 
 .metric-grid {
