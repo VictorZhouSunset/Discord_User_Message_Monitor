@@ -8,7 +8,11 @@ type ToneStep = {
   type?: OscillatorType;
 };
 
-const SOUND_PATTERNS: Record<Exclude<NotificationSoundId, 'system'>, ToneStep[]> = {
+type SynthesizedSoundId = Exclude<NotificationSoundId, 'system' | 'mm'>;
+
+const MM_SOUND_URL = new URL('../MM.m4a', import.meta.url).toString();
+
+const SOUND_PATTERNS: Record<SynthesizedSoundId, ToneStep[]> = {
   'soft-ping': [{ frequency: 880, start: 0, duration: 0.16, gain: 0.18, type: 'sine' }],
   'double-chime': [
     { frequency: 659, start: 0, duration: 0.13, gain: 0.16, type: 'sine' },
@@ -50,8 +54,18 @@ function playToneStep(context: AudioContext, step: ToneStep): void {
   oscillator.stop(endAt + 0.02);
 }
 
+async function playAudioFile(url: string): Promise<void> {
+  const audio = new globalThis.Audio(url);
+  await audio.play();
+}
+
 async function playSound(sound: NotificationSoundId): Promise<void> {
   if (sound === 'system') {
+    return;
+  }
+
+  if (sound === 'mm') {
+    await playAudioFile(MM_SOUND_URL);
     return;
   }
 

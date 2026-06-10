@@ -12,6 +12,7 @@ export const NOTIFICATION_SOUNDS = [
   { id: 'double-chime', label: 'Double chime' },
   { id: 'bright-pop', label: 'Bright pop' },
   { id: 'urgent-pulse', label: 'Urgent pulse' },
+  { id: 'mm', label: 'MM' },
   { id: 'system', label: 'System default' },
 ] as const;
 

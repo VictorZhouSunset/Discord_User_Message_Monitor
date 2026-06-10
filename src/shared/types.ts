@@ -4,7 +4,8 @@ export type NotificationSoundId =
   | 'soft-ping'
   | 'double-chime'
   | 'bright-pop'
-  | 'urgent-pulse';
+  | 'urgent-pulse'
+  | 'mm';
 
 export type TrackedUser = {
   id: string;
